@@ -21,6 +21,7 @@ defmodule ExDocker.Client do
   def client() do
     middleware = [
       {Tesla.Middleware.BaseUrl, base_url()},
+      ExDocker.Middlewares.Response,
       ExDocker.Middlewares.ChunkedJson
     ]
 
