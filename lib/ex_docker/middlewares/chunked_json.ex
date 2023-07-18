@@ -1,4 +1,4 @@
-defmodule Docker.ChunkedJson do
+defmodule ExDocker.Middlewares.ChunkedJson do
   @behaviour Tesla.Middleware
 
   @impl Tesla.Middleware
@@ -42,7 +42,9 @@ defmodule Docker.ChunkedJson do
           {:ok, body} -> {:ok, body}
           _ -> {:ok, env.body}
         end
-      _ -> Jason.decode(env.body)
+
+      _ ->
+        Jason.decode(env.body)
     end
   end
 end

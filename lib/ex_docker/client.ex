@@ -1,15 +1,15 @@
-defmodule Docker.Client do
+defmodule ExDocker.Client do
   @socket_path "unix:///var/run/docker.sock"
   @default_version "v1.36"
 
   defp base_url() do
-    host = Application.get_env(:docker, :host) || System.get_env("DOCKER_HOST", @socket_path)
+    host = Application.get_env(:ex_docker, :host) || System.get_env("DOCKER_HOST", @socket_path)
+
     version =
-      case Application.get_env(:docker, :version) do
+      case Application.get_env(:ex_docker, :version) do
         nil -> @default_version
         version -> version
       end
-
 
     "#{normalize_host(host)}/#{version}"
     |> String.trim_trailing("/")
@@ -21,29 +21,34 @@ defmodule Docker.Client do
   def client() do
     middleware = [
       {Tesla.Middleware.BaseUrl, base_url()},
-      Docker.ChunkedJson,
+      ExDocker.Middlewares.ChunkedJson
     ]
+
     Tesla.client(middleware, Tesla.Adapter.Hackney)
   end
 
   @doc """
   Send a GET request to the Docker API at the speicifed resource.
   """
-  def get(resource, opts \\ []) do
-    Tesla.get!(client(), resource, opts) |> Map.get(:body)
+  def get(path, opts \\ []) do
+    with {:ok, response} <- Tesla.get(client(), path, opts) do
+      response |> Map.get(:body)
+    end
   end
 
   @doc """
   Send a POST request to the Docker API, JSONifying the passed in data.
   """
-  def post(resource, data \\ %{}, opts \\ []) do
-    Tesla.post!(client(), resource, data, opts) |> Map.get(:body)
+  def post(path, data \\ %{}, opts \\ []) do
+    with {:ok, response} <- Tesla.post(client(), path, data, opts) do
+      response |> Map.get(:body)
+    end
   end
 
   @doc """
   Send a DELETE request to the Docker API.
   """
-  def delete(resource, opts \\ []) do
-    Tesla.delete!(client(), resource, opts)
+  def delete(path, opts \\ []) do
+    Tesla.delete(client(), path, opts)
   end
 end

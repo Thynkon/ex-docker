@@ -1,4 +1,4 @@
 defmodule NamesTest do
   use ExUnit.Case, async: true
-  doctest Docker.Names
+  doctest ExDocker.Names
 end

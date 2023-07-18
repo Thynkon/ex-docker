@@ -1,19 +1,19 @@
-defmodule Docker.Names do
+defmodule ExDocker.Names do
   @default_registry "index.docker.io"
 
   @doc """
-  Sanitizes a name for use with Docker.
+  Sanitizes a name for use with ExDocker.
   Docker doesn't support / in names, so convert them to underscores.
 
   ## Examples
 
-      iex> Docker.Names.container_safe("foo")
+      iex> ExDocker.Names.container_safe("foo")
       "foo"
 
-      iex> Docker.Names.container_safe("foo/bar/bacon")
+      iex> ExDocker.Names.container_safe("foo/bar/bacon")
       "foo_bar_bacon"
 
-      iex> Docker.Names.container_safe("foo_bar")
+      iex> ExDocker.Names.container_safe("foo_bar")
       "foo_bar"
   """
   def container_safe("/" <> name), do: "/" <> String.replace(name, "/", "_")
@@ -30,13 +30,13 @@ defmodule Docker.Names do
 
   ## Examples
 
-      iex> Docker.Names.extract_tag("foo")
+      iex> ExDocker.Names.extract_tag("foo")
       "latest"
 
-      iex > Docker.Names.extract_tag("foo:bar")
+      iex > ExDocker.Names.extract_tag("foo:bar")
       "bar"
 
-      iex > Docker.Names.extract_tag("foo/bar:bacon")
+      iex > ExDocker.Names.extract_tag("foo/bar:bacon")
       "bacon"
   """
   def extract_tag([_image | []]), do: "latest"
@@ -48,13 +48,13 @@ defmodule Docker.Names do
 
   ## Examples
 
-      iex> Docker.Names.split_image("quay.io/wildcard/rabbitmq")
+      iex> ExDocker.Names.split_image("quay.io/wildcard/rabbitmq")
       {"quay.io", "wildcard", "rabbitmq"}
 
-      iex> Docker.Names.split_image("dockerfile/rabbitmq")
+      iex> ExDocker.Names.split_image("dockerfile/rabbitmq")
       {"index.docker.io", "dockerfile", "rabbitmq"}
 
-      iex> Docker.Names.split_image("ubuntu")
+      iex> ExDocker.Names.split_image("ubuntu")
       {"index.docker.io", "_", "ubuntu"}
   """
   def split_image([name]), do: {@default_registry, "_", name}
