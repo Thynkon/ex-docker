@@ -1,7 +1,16 @@
 defmodule ExDocker.Images do
   @base_uri "/images"
 
-  @type id() :: binary()
+  @typedoc """
+  Image identifier. Could be an hash or the image's name/tag
+  """
+  @type image() :: binary()
+
+  @type layer() :: map()
+
+  defp json_content() do
+    {"content-type", "application/json"}
+  end
 
   @doc """
   List all Docker images.
@@ -45,13 +54,24 @@ defmodule ExDocker.Images do
     |> ExDocker.Client.post("", headers: headers, query: %{fromImage: image, tag: tag})
   end
 
-  @spec exists?(id()) :: boolean()
+  @spec exists?(image()) :: boolean()
   def exists?(image) do
     with {:error, _} <- ExDocker.Images.inspect(image) do
       false
     else
       _image -> true
     end
+  end
+
+  @doc """
+  Return parent layers of an image.
+  """
+  @spec get_history(image()) :: list()
+  def get_history(image) do
+    headers = [json_content()]
+
+    "#{@base_uri}/#{image}/history"
+    |> ExDocker.Client.get(headers: headers, query: %{})
   end
 
   @doc """
