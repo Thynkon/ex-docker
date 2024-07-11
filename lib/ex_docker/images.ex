@@ -1,6 +1,8 @@
 defmodule ExDocker.Images do
   @base_uri "/images"
 
+  @type id() :: binary()
+
   @doc """
   List all Docker images.
   """
@@ -41,6 +43,15 @@ defmodule ExDocker.Images do
 
     "#{@base_uri}/create"
     |> ExDocker.Client.post("", headers: headers, query: %{fromImage: image, tag: tag})
+  end
+
+  @spec exists?(id()) :: boolean()
+  def exists?(image) do
+    with {:error, _} <- ExDocker.Images.inspect(image) do
+      false
+    else
+      _image -> true
+    end
   end
 
   @doc """
