@@ -81,22 +81,28 @@ defmodule ExDocker.Images do
         {:error, error}
 
       result ->
-        {:ok, file} = File.open(path, [:write, :binary])
+        file = File.stream!(path)
 
         result
-        |> Stream.each(fn chunk ->
-          IO.binwrite(file, chunk)
-        end)
+        |> Stream.into(file)
         |> Stream.run()
-
-        File.close(file)
     end
   end
 
   @doc """
   Deletes a local image.
   """
-  def delete(image) do
-    (@base_uri <> "/" <> image) |> ExDocker.Client.delete()
+  def delete(image, opts \\ []) do
+    defaults = [force: false, noprune: false]
+    opts = Keyword.merge(defaults, opts)
+
+    "#{@base_uri}/#{image}" |> ExDocker.Client.delete(query: opts)
+  end
+
+  @doc """
+  Delete unused images
+  """
+  def prune() do
+    "#{@base_uri}/prune" |> ExDocker.Client.post()
   end
 end
