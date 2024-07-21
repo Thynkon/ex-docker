@@ -1,6 +1,6 @@
 defmodule ExDocker.Client do
   @socket_path "unix:///var/run/docker.sock"
-  @default_version "v1.36"
+  @default_version "v1.42"
 
   defp base_url() do
     host = Application.get_env(:ex_docker, :host) || System.get_env("DOCKER_HOST", @socket_path)
@@ -18,21 +18,21 @@ defmodule ExDocker.Client do
   defp normalize_host("tcp://" <> host), do: "http://" <> host
   defp normalize_host("unix://" <> host), do: "http+unix://" <> URI.encode_www_form(host)
 
-  def client() do
+  def client(opts \\ []) do
     middleware = [
       {Tesla.Middleware.BaseUrl, base_url()},
       ExDocker.Middlewares.Response,
       ExDocker.Middlewares.ChunkedJson
     ]
 
-    Tesla.client(middleware, Tesla.Adapter.Hackney)
+    Tesla.client(middleware, {Tesla.Adapter.Mint, opts})
   end
 
   @doc """
   Send a GET request to the Docker API at the speicifed resource.
   """
   def get(path, opts \\ []) do
-    with {:ok, response} <- Tesla.get(client(), path, opts) do
+    with {:ok, response} <- Tesla.get(client(opts), path) do
       response |> Map.get(:body)
     end
   end

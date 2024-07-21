@@ -74,6 +74,25 @@ defmodule ExDocker.Images do
     |> ExDocker.Client.get(headers: headers, query: %{})
   end
 
+  def export(image, path) do
+    case "#{@base_uri}/#{image}/get"
+         |> ExDocker.Client.get(query: %{}, body_as: :stream) do
+      {:error, error} ->
+        {:error, error}
+
+      result ->
+        {:ok, file} = File.open(path, [:write, :binary])
+
+        result
+        |> Stream.each(fn chunk ->
+          IO.binwrite(file, chunk)
+        end)
+        |> Stream.run()
+
+        File.close(file)
+    end
+  end
+
   @doc """
   Deletes a local image.
   """

@@ -23,10 +23,12 @@ defmodule ExDocker.Mixfile do
   defp deps do
     [
       {:jason, ">= 1.0.0"},
-      {:tesla, ">= 1.4.0"},
-      {:hackney, "~> 1.17"},
+      {:tesla, git: "https://github.com/Thynkon/tesla"},
+      {:mint, "~> 1.0"},
+      {:castore, "~> 0.1"},
       {:earmark, "~> 1.4", only: :dev},
-      {:ex_doc, "~> 0.25", only: :dev}
+      {:ex_doc, "~> 0.25", only: :dev},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
